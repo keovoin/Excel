@@ -333,8 +333,9 @@
   document.getElementById("export-csv").addEventListener("click", () => {
     const rows = applyFilters(DATA);
     const header = ["Date", "Region", "Category", "Product", "Segment", "Units", "Revenue", "Profit"];
+    const esc = (v) => { v = String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
     const csv = [header.join(",")].concat(
-      rows.map(d => [d.date, d.region, d.category, `"${d.product}"`, d.segment, d.units, d.revenue, d.profit].join(","))
+      rows.map(d => [d.date, d.region, d.category, d.product, d.segment, d.units, d.revenue, d.profit].map(esc).join(","))
     ).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
