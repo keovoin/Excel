@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contoso Sales — Executive Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">▣</div>
+        <div class="brand-text">
+          <strong>Contoso</strong>
+          <span>Sales Analytics</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-item active"><span class="ico">▦</span> Overview</a>
+        <a class="nav-item"><span class="ico">◷</span> Trends</a>
+        <a class="nav-item"><span class="ico">◍</span> Geography</a>
+        <a class="nav-item"><span class="ico">▤</span> Details</a>
+      </nav>
+
+      <div class="filters">
+        <h4>Filters</h4>
+
+        <label class="field">
+          <span>Year</span>
+          <select id="filter-year">
+            <option value="all">All Years</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Region</span>
+          <select id="filter-region">
+            <option value="all">All Regions</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Category</span>
+          <select id="filter-category">
+            <option value="all">All Categories</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Segment</span>
+          <select id="filter-segment">
+            <option value="all">All Segments</option>
+          </select>
+        </label>
+
+        <button id="reset-filters" class="reset-btn">↺ Reset Filters</button>
+      </div>
+
+      <div class="sidebar-foot">
+        <span id="active-filter-note">Showing all data</span>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1>Executive Sales Overview</h1>
+          <p class="subtitle" id="subtitle">Sample data &middot; updated <span id="updated-date"></span></p>
+        </div>
+        <div class="topbar-actions">
+          <button id="export-csv" class="ghost-btn">⤓ Export CSV</button>
+          <div class="chip">Live demo</div>
+        </div>
+      </header>
+
+      <!-- KPI cards -->
+      <section class="kpis" id="kpis">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value" id="kpi-revenue">$0</div>
+          <div class="kpi-delta" id="kpi-revenue-delta"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Profit</div>
+          <div class="kpi-value" id="kpi-profit">$0</div>
+          <div class="kpi-delta" id="kpi-profit-delta"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Orders</div>
+          <div class="kpi-value" id="kpi-orders">0</div>
+          <div class="kpi-delta" id="kpi-orders-delta"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Profit Margin</div>
+          <div class="kpi-value" id="kpi-margin">0%</div>
+          <div class="kpi-delta" id="kpi-margin-delta"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Order Value</div>
+          <div class="kpi-value" id="kpi-aov">$0</div>
+          <div class="kpi-delta" id="kpi-aov-delta"></div>
+        </div>
+      </section>
+
+      <!-- Charts grid -->
+      <section class="grid">
+        <div class="panel span-2">
+          <div class="panel-head">
+            <h3>Revenue &amp; Profit Trend</h3>
+            <span class="panel-sub">Monthly</span>
+          </div>
+          <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Revenue by Category</h3>
+            <span class="panel-sub">Click to filter</span>
+          </div>
+          <div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Revenue by Region</h3>
+            <span class="panel-sub">Click to filter</span>
+          </div>
+          <div class="chart-wrap"><canvas id="regionChart"></canvas></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Sales by Segment</h3>
+            <span class="panel-sub">Share</span>
+          </div>
+          <div class="chart-wrap"><canvas id="segmentChart"></canvas></div>
+        </div>
+
+        <div class="panel span-3">
+          <div class="panel-head">
+            <h3>Top Products by Revenue</h3>
+            <span class="panel-sub">Top 8</span>
+          </div>
+          <div class="chart-wrap tall"><canvas id="productChart"></canvas></div>
+        </div>
+      </section>
+
+      <!-- Data table -->
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Transaction Detail</h3>
+          <span class="panel-sub"><span id="row-count">0</span> rows</span>
+        </div>
+        <div class="table-wrap">
+          <table id="dataTable">
+            <thead>
+              <tr>
+                <th data-key="date">Date</th>
+                <th data-key="region">Region</th>
+                <th data-key="category">Category</th>
+                <th data-key="product">Product</th>
+                <th data-key="segment">Segment</th>
+                <th data-key="units" class="num">Units</th>
+                <th data-key="revenue" class="num">Revenue</th>
+                <th data-key="profit" class="num">Profit</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="table-foot">
+          <button id="prev-page" class="ghost-btn">‹ Prev</button>
+          <span id="page-info">Page 1</span>
+          <button id="next-page" class="ghost-btn">Next ›</button>
+        </div>
+      </section>
+
+      <footer class="footer">Built with Chart.js &middot; All figures are randomly generated sample data.</footer>
+    </main>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
